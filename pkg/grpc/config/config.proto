@@ -234,3 +234,40 @@ message Settings {
   optional string favicon_url = 90;
   optional string error_message_first_paragraph = 91;
 }
+
+
+// A ConnectMessage is a message either from the client to the server or vice-versa for the connect service.
+message ConnectMessage {
+  message Manifest {
+    uint64 server_version = 1;
+    repeated ManifestRecordVersion records = 2;
+  }
+  message ManifestRecordVersion {
+    string record_type = 1;
+    uint64 record_version = 2;
+  }
+  message RecordUpdate {
+    string record_type = 1;
+    string record_id = 2;
+    uint64 record_version = 3;
+    uint64 packet_count = 4;
+    uint64 packet_number = 5;
+    bytes packet_data = 6;
+  }
+  message RecordDelete {
+    string record_type = 1;
+    string record_id = 2;
+    uint64 record_version = 3;
+  }
+
+  oneof message {
+    Manifest manifest = 1;
+    RecordUpdate record_update = 2;
+    RecordDelete record_delete = 3;
+  }
+}
+
+// The ConnectService allows Pomerium to be configured from a separate service.
+service ConnectService {
+  rpc Connect(stream ConnectMessage) returns (stream ConnectMessage);
+}

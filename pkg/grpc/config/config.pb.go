@@ -7,9 +7,13 @@
 package config
 
 import (
+	context "context"
 	v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	v31 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	crypt "github.com/pomerium/pomerium/pkg/grpc/crypt"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -1659,6 +1663,102 @@ func (x *Settings) GetErrorMessageFirstParagraph() string {
 	return ""
 }
 
+// A ConnectMessage is a message either from the client to the server or vice-versa for the connect service.
+type ConnectMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Message:
+	//
+	//	*ConnectMessage_Manifest_
+	//	*ConnectMessage_RecordUpdate_
+	//	*ConnectMessage_RecordDelete_
+	Message isConnectMessage_Message `protobuf_oneof:"message"`
+}
+
+func (x *ConnectMessage) Reset() {
+	*x = ConnectMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_config_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectMessage) ProtoMessage() {}
+
+func (x *ConnectMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectMessage.ProtoReflect.Descriptor instead.
+func (*ConnectMessage) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{6}
+}
+
+func (m *ConnectMessage) GetMessage() isConnectMessage_Message {
+	if m != nil {
+		return m.Message
+	}
+	return nil
+}
+
+func (x *ConnectMessage) GetManifest() *ConnectMessage_Manifest {
+	if x, ok := x.GetMessage().(*ConnectMessage_Manifest_); ok {
+		return x.Manifest
+	}
+	return nil
+}
+
+func (x *ConnectMessage) GetRecordUpdate() *ConnectMessage_RecordUpdate {
+	if x, ok := x.GetMessage().(*ConnectMessage_RecordUpdate_); ok {
+		return x.RecordUpdate
+	}
+	return nil
+}
+
+func (x *ConnectMessage) GetRecordDelete() *ConnectMessage_RecordDelete {
+	if x, ok := x.GetMessage().(*ConnectMessage_RecordDelete_); ok {
+		return x.RecordDelete
+	}
+	return nil
+}
+
+type isConnectMessage_Message interface {
+	isConnectMessage_Message()
+}
+
+type ConnectMessage_Manifest_ struct {
+	Manifest *ConnectMessage_Manifest `protobuf:"bytes,1,opt,name=manifest,proto3,oneof"`
+}
+
+type ConnectMessage_RecordUpdate_ struct {
+	RecordUpdate *ConnectMessage_RecordUpdate `protobuf:"bytes,2,opt,name=record_update,json=recordUpdate,proto3,oneof"`
+}
+
+type ConnectMessage_RecordDelete_ struct {
+	RecordDelete *ConnectMessage_RecordDelete `protobuf:"bytes,3,opt,name=record_delete,json=recordDelete,proto3,oneof"`
+}
+
+func (*ConnectMessage_Manifest_) isConnectMessage_Message() {}
+
+func (*ConnectMessage_RecordUpdate_) isConnectMessage_Message() {}
+
+func (*ConnectMessage_RecordDelete_) isConnectMessage_Message() {}
+
 type Settings_Certificate struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1671,7 +1771,7 @@ type Settings_Certificate struct {
 func (x *Settings_Certificate) Reset() {
 	*x = Settings_Certificate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_config_proto_msgTypes[10]
+		mi := &file_config_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1684,7 +1784,7 @@ func (x *Settings_Certificate) String() string {
 func (*Settings_Certificate) ProtoMessage() {}
 
 func (x *Settings_Certificate) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[10]
+	mi := &file_config_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1712,6 +1812,266 @@ func (x *Settings_Certificate) GetKeyBytes() []byte {
 		return x.KeyBytes
 	}
 	return nil
+}
+
+type ConnectMessage_Manifest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServerVersion uint64                                  `protobuf:"varint,1,opt,name=server_version,json=serverVersion,proto3" json:"server_version,omitempty"`
+	Records       []*ConnectMessage_ManifestRecordVersion `protobuf:"bytes,2,rep,name=records,proto3" json:"records,omitempty"`
+}
+
+func (x *ConnectMessage_Manifest) Reset() {
+	*x = ConnectMessage_Manifest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_config_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectMessage_Manifest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectMessage_Manifest) ProtoMessage() {}
+
+func (x *ConnectMessage_Manifest) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectMessage_Manifest.ProtoReflect.Descriptor instead.
+func (*ConnectMessage_Manifest) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *ConnectMessage_Manifest) GetServerVersion() uint64 {
+	if x != nil {
+		return x.ServerVersion
+	}
+	return 0
+}
+
+func (x *ConnectMessage_Manifest) GetRecords() []*ConnectMessage_ManifestRecordVersion {
+	if x != nil {
+		return x.Records
+	}
+	return nil
+}
+
+type ConnectMessage_ManifestRecordVersion struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RecordType    string `protobuf:"bytes,1,opt,name=record_type,json=recordType,proto3" json:"record_type,omitempty"`
+	RecordVersion uint64 `protobuf:"varint,2,opt,name=record_version,json=recordVersion,proto3" json:"record_version,omitempty"`
+}
+
+func (x *ConnectMessage_ManifestRecordVersion) Reset() {
+	*x = ConnectMessage_ManifestRecordVersion{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_config_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectMessage_ManifestRecordVersion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectMessage_ManifestRecordVersion) ProtoMessage() {}
+
+func (x *ConnectMessage_ManifestRecordVersion) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectMessage_ManifestRecordVersion.ProtoReflect.Descriptor instead.
+func (*ConnectMessage_ManifestRecordVersion) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{6, 1}
+}
+
+func (x *ConnectMessage_ManifestRecordVersion) GetRecordType() string {
+	if x != nil {
+		return x.RecordType
+	}
+	return ""
+}
+
+func (x *ConnectMessage_ManifestRecordVersion) GetRecordVersion() uint64 {
+	if x != nil {
+		return x.RecordVersion
+	}
+	return 0
+}
+
+type ConnectMessage_RecordUpdate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RecordType    string `protobuf:"bytes,1,opt,name=record_type,json=recordType,proto3" json:"record_type,omitempty"`
+	RecordId      string `protobuf:"bytes,2,opt,name=record_id,json=recordId,proto3" json:"record_id,omitempty"`
+	RecordVersion uint64 `protobuf:"varint,3,opt,name=record_version,json=recordVersion,proto3" json:"record_version,omitempty"`
+	PacketCount   uint64 `protobuf:"varint,4,opt,name=packet_count,json=packetCount,proto3" json:"packet_count,omitempty"`
+	PacketNumber  uint64 `protobuf:"varint,5,opt,name=packet_number,json=packetNumber,proto3" json:"packet_number,omitempty"`
+	PacketData    []byte `protobuf:"bytes,6,opt,name=packet_data,json=packetData,proto3" json:"packet_data,omitempty"`
+}
+
+func (x *ConnectMessage_RecordUpdate) Reset() {
+	*x = ConnectMessage_RecordUpdate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_config_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectMessage_RecordUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectMessage_RecordUpdate) ProtoMessage() {}
+
+func (x *ConnectMessage_RecordUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectMessage_RecordUpdate.ProtoReflect.Descriptor instead.
+func (*ConnectMessage_RecordUpdate) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{6, 2}
+}
+
+func (x *ConnectMessage_RecordUpdate) GetRecordType() string {
+	if x != nil {
+		return x.RecordType
+	}
+	return ""
+}
+
+func (x *ConnectMessage_RecordUpdate) GetRecordId() string {
+	if x != nil {
+		return x.RecordId
+	}
+	return ""
+}
+
+func (x *ConnectMessage_RecordUpdate) GetRecordVersion() uint64 {
+	if x != nil {
+		return x.RecordVersion
+	}
+	return 0
+}
+
+func (x *ConnectMessage_RecordUpdate) GetPacketCount() uint64 {
+	if x != nil {
+		return x.PacketCount
+	}
+	return 0
+}
+
+func (x *ConnectMessage_RecordUpdate) GetPacketNumber() uint64 {
+	if x != nil {
+		return x.PacketNumber
+	}
+	return 0
+}
+
+func (x *ConnectMessage_RecordUpdate) GetPacketData() []byte {
+	if x != nil {
+		return x.PacketData
+	}
+	return nil
+}
+
+type ConnectMessage_RecordDelete struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RecordType    string `protobuf:"bytes,1,opt,name=record_type,json=recordType,proto3" json:"record_type,omitempty"`
+	RecordId      string `protobuf:"bytes,2,opt,name=record_id,json=recordId,proto3" json:"record_id,omitempty"`
+	RecordVersion uint64 `protobuf:"varint,3,opt,name=record_version,json=recordVersion,proto3" json:"record_version,omitempty"`
+}
+
+func (x *ConnectMessage_RecordDelete) Reset() {
+	*x = ConnectMessage_RecordDelete{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_config_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectMessage_RecordDelete) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectMessage_RecordDelete) ProtoMessage() {}
+
+func (x *ConnectMessage_RecordDelete) ProtoReflect() protoreflect.Message {
+	mi := &file_config_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectMessage_RecordDelete.ProtoReflect.Descriptor instead.
+func (*ConnectMessage_RecordDelete) Descriptor() ([]byte, []int) {
+	return file_config_proto_rawDescGZIP(), []int{6, 3}
+}
+
+func (x *ConnectMessage_RecordDelete) GetRecordType() string {
+	if x != nil {
+		return x.RecordType
+	}
+	return ""
+}
+
+func (x *ConnectMessage_RecordDelete) GetRecordId() string {
+	if x != nil {
+		return x.RecordId
+	}
+	return ""
+}
+
+func (x *ConnectMessage_RecordDelete) GetRecordVersion() uint64 {
+	if x != nil {
+		return x.RecordVersion
+	}
+	return 0
 }
 
 var File_config_proto protoreflect.FileDescriptor
@@ -2467,10 +2827,69 @@ var file_config_proto_rawDesc = []byte{
 	0x0e, 0x0a, 0x0c, 0x5f, 0x66, 0x61, 0x76, 0x69, 0x63, 0x6f, 0x6e, 0x5f, 0x75, 0x72, 0x6c, 0x42,
 	0x20, 0x0a, 0x1e, 0x5f, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
 	0x65, 0x5f, 0x66, 0x69, 0x72, 0x73, 0x74, 0x5f, 0x70, 0x61, 0x72, 0x61, 0x67, 0x72, 0x61, 0x70,
-	0x68, 0x42, 0x2e, 0x5a, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x70, 0x6f, 0x6d, 0x65, 0x72, 0x69, 0x75, 0x6d, 0x2f, 0x70, 0x6f, 0x6d, 0x65, 0x72, 0x69, 0x75,
-	0x6d, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x63, 0x6f, 0x6e, 0x66, 0x69,
-	0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x68, 0x22, 0xc7, 0x06, 0x0a, 0x0e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x12, 0x46, 0x0a, 0x08, 0x6d, 0x61, 0x6e, 0x69, 0x66, 0x65, 0x73, 0x74,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x28, 0x2e, 0x70, 0x6f, 0x6d, 0x65, 0x72, 0x69, 0x75,
+	0x6d, 0x2e, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74,
+	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x4d, 0x61, 0x6e, 0x69, 0x66, 0x65, 0x73, 0x74,
+	0x48, 0x00, 0x52, 0x08, 0x6d, 0x61, 0x6e, 0x69, 0x66, 0x65, 0x73, 0x74, 0x12, 0x53, 0x0a, 0x0d,
+	0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x70, 0x6f, 0x6d, 0x65, 0x72, 0x69, 0x75, 0x6d, 0x2e, 0x63,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x2e, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x48, 0x00, 0x52, 0x0c, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x12, 0x53, 0x0a, 0x0d, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x64, 0x65, 0x6c, 0x65,
+	0x74, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x70, 0x6f, 0x6d, 0x65, 0x72,
+	0x69, 0x75, 0x6d, 0x2e, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65,
+	0x63, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x48, 0x00, 0x52, 0x0c, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x1a, 0x82, 0x01, 0x0a, 0x08, 0x4d, 0x61, 0x6e, 0x69, 0x66,
+	0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x0e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x76, 0x65,
+	0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0d, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x4f, 0x0a, 0x07, 0x72, 0x65,
+	0x63, 0x6f, 0x72, 0x64, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x35, 0x2e, 0x70, 0x6f,
+	0x6d, 0x65, 0x72, 0x69, 0x75, 0x6d, 0x2e, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f,
+	0x6e, 0x6e, 0x65, 0x63, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x4d, 0x61, 0x6e,
+	0x69, 0x66, 0x65, 0x73, 0x74, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x56, 0x65, 0x72, 0x73, 0x69,
+	0x6f, 0x6e, 0x52, 0x07, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x1a, 0x5f, 0x0a, 0x15, 0x4d,
+	0x61, 0x6e, 0x69, 0x66, 0x65, 0x73, 0x74, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x56, 0x65, 0x72,
+	0x73, 0x69, 0x6f, 0x6e, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x74,
+	0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x63, 0x6f, 0x72,
+	0x64, 0x54, 0x79, 0x70, 0x65, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f,
+	0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0d, 0x72,
+	0x65, 0x63, 0x6f, 0x72, 0x64, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x1a, 0xdc, 0x01, 0x0a,
+	0x0c, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x1f, 0x0a,
+	0x0b, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1b,
+	0x0a, 0x09, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x08, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x72,
+	0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x04, 0x52, 0x0d, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x56, 0x65, 0x72, 0x73, 0x69,
+	0x6f, 0x6e, 0x12, 0x21, 0x0a, 0x0c, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x63, 0x6f, 0x75,
+	0x6e, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74,
+	0x43, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x5f,
+	0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0c, 0x70, 0x61,
+	0x63, 0x6b, 0x65, 0x74, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x1f, 0x0a, 0x0b, 0x70, 0x61,
+	0x63, 0x6b, 0x65, 0x74, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x0a, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x44, 0x61, 0x74, 0x61, 0x1a, 0x73, 0x0a, 0x0c, 0x52,
+	0x65, 0x63, 0x6f, 0x72, 0x64, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x72,
+	0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0a, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1b, 0x0a, 0x09,
+	0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65, 0x63,
+	0x6f, 0x72, 0x64, 0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x04, 0x52, 0x0d, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
+	0x42, 0x09, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x32, 0x61, 0x0a, 0x0e, 0x43,
+	0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x4f, 0x0a,
+	0x07, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x70, 0x6f, 0x6d, 0x65, 0x72,
+	0x69, 0x75, 0x6d, 0x2e, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65,
+	0x63, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x1f, 0x2e, 0x70, 0x6f, 0x6d, 0x65,
+	0x72, 0x69, 0x75, 0x6d, 0x2e, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x2e, 0x43, 0x6f, 0x6e, 0x6e,
+	0x65, 0x63, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x28, 0x01, 0x30, 0x01, 0x42, 0x2e,
+	0x5a, 0x2c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6f, 0x6d,
+	0x65, 0x72, 0x69, 0x75, 0x6d, 0x2f, 0x70, 0x6f, 0x6d, 0x65, 0x72, 0x69, 0x75, 0x6d, 0x2f, 0x70,
+	0x6b, 0x67, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2486,63 +2905,74 @@ func file_config_proto_rawDescGZIP() []byte {
 }
 
 var file_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_config_proto_goTypes = []interface{}{
-	(Route_AuthorizationHeaderMode)(0),       // 0: pomerium.config.Route.AuthorizationHeaderMode
-	(*Config)(nil),                           // 1: pomerium.config.Config
-	(*RouteRewriteHeader)(nil),               // 2: pomerium.config.RouteRewriteHeader
-	(*RouteRedirect)(nil),                    // 3: pomerium.config.RouteRedirect
-	(*Route)(nil),                            // 4: pomerium.config.Route
-	(*Policy)(nil),                           // 5: pomerium.config.Policy
-	(*Settings)(nil),                         // 6: pomerium.config.Settings
-	nil,                                      // 7: pomerium.config.Route.AllowedIdpClaimsEntry
-	nil,                                      // 8: pomerium.config.Route.SetRequestHeadersEntry
-	nil,                                      // 9: pomerium.config.Route.SetResponseHeadersEntry
-	nil,                                      // 10: pomerium.config.Policy.AllowedIdpClaimsEntry
-	(*Settings_Certificate)(nil),             // 11: pomerium.config.Settings.Certificate
-	nil,                                      // 12: pomerium.config.Settings.RequestParamsEntry
-	nil,                                      // 13: pomerium.config.Settings.SetResponseHeadersEntry
-	nil,                                      // 14: pomerium.config.Settings.JwtClaimsHeadersEntry
-	(*durationpb.Duration)(nil),              // 15: google.protobuf.Duration
-	(*v3.Cluster)(nil),                       // 16: envoy.config.cluster.v3.Cluster
-	(v31.HttpConnectionManager_CodecType)(0), // 17: envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager.CodecType
-	(*crypt.PublicKeyEncryptionKey)(nil),     // 18: pomerium.crypt.PublicKeyEncryptionKey
-	(*structpb.ListValue)(nil),               // 19: google.protobuf.ListValue
+	(Route_AuthorizationHeaderMode)(0), // 0: pomerium.config.Route.AuthorizationHeaderMode
+	(*Config)(nil),                     // 1: pomerium.config.Config
+	(*RouteRewriteHeader)(nil),         // 2: pomerium.config.RouteRewriteHeader
+	(*RouteRedirect)(nil),              // 3: pomerium.config.RouteRedirect
+	(*Route)(nil),                      // 4: pomerium.config.Route
+	(*Policy)(nil),                     // 5: pomerium.config.Policy
+	(*Settings)(nil),                   // 6: pomerium.config.Settings
+	(*ConnectMessage)(nil),             // 7: pomerium.config.ConnectMessage
+	nil,                                // 8: pomerium.config.Route.AllowedIdpClaimsEntry
+	nil,                                // 9: pomerium.config.Route.SetRequestHeadersEntry
+	nil,                                // 10: pomerium.config.Route.SetResponseHeadersEntry
+	nil,                                // 11: pomerium.config.Policy.AllowedIdpClaimsEntry
+	(*Settings_Certificate)(nil),       // 12: pomerium.config.Settings.Certificate
+	nil,                                // 13: pomerium.config.Settings.RequestParamsEntry
+	nil,                                // 14: pomerium.config.Settings.SetResponseHeadersEntry
+	nil,                                // 15: pomerium.config.Settings.JwtClaimsHeadersEntry
+	(*ConnectMessage_Manifest)(nil),    // 16: pomerium.config.ConnectMessage.Manifest
+	(*ConnectMessage_ManifestRecordVersion)(nil), // 17: pomerium.config.ConnectMessage.ManifestRecordVersion
+	(*ConnectMessage_RecordUpdate)(nil),          // 18: pomerium.config.ConnectMessage.RecordUpdate
+	(*ConnectMessage_RecordDelete)(nil),          // 19: pomerium.config.ConnectMessage.RecordDelete
+	(*durationpb.Duration)(nil),                  // 20: google.protobuf.Duration
+	(*v3.Cluster)(nil),                           // 21: envoy.config.cluster.v3.Cluster
+	(v31.HttpConnectionManager_CodecType)(0),     // 22: envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager.CodecType
+	(*crypt.PublicKeyEncryptionKey)(nil),         // 23: pomerium.crypt.PublicKeyEncryptionKey
+	(*structpb.ListValue)(nil),                   // 24: google.protobuf.ListValue
 }
 var file_config_proto_depIdxs = []int32{
 	4,  // 0: pomerium.config.Config.routes:type_name -> pomerium.config.Route
 	6,  // 1: pomerium.config.Config.settings:type_name -> pomerium.config.Settings
 	3,  // 2: pomerium.config.Route.redirect:type_name -> pomerium.config.RouteRedirect
-	7,  // 3: pomerium.config.Route.allowed_idp_claims:type_name -> pomerium.config.Route.AllowedIdpClaimsEntry
-	15, // 4: pomerium.config.Route.timeout:type_name -> google.protobuf.Duration
-	15, // 5: pomerium.config.Route.idle_timeout:type_name -> google.protobuf.Duration
-	8,  // 6: pomerium.config.Route.set_request_headers:type_name -> pomerium.config.Route.SetRequestHeadersEntry
-	9,  // 7: pomerium.config.Route.set_response_headers:type_name -> pomerium.config.Route.SetResponseHeadersEntry
+	8,  // 3: pomerium.config.Route.allowed_idp_claims:type_name -> pomerium.config.Route.AllowedIdpClaimsEntry
+	20, // 4: pomerium.config.Route.timeout:type_name -> google.protobuf.Duration
+	20, // 5: pomerium.config.Route.idle_timeout:type_name -> google.protobuf.Duration
+	9,  // 6: pomerium.config.Route.set_request_headers:type_name -> pomerium.config.Route.SetRequestHeadersEntry
+	10, // 7: pomerium.config.Route.set_response_headers:type_name -> pomerium.config.Route.SetResponseHeadersEntry
 	2,  // 8: pomerium.config.Route.rewrite_response_headers:type_name -> pomerium.config.RouteRewriteHeader
 	0,  // 9: pomerium.config.Route.set_authorization_header:type_name -> pomerium.config.Route.AuthorizationHeaderMode
-	16, // 10: pomerium.config.Route.envoy_opts:type_name -> envoy.config.cluster.v3.Cluster
+	21, // 10: pomerium.config.Route.envoy_opts:type_name -> envoy.config.cluster.v3.Cluster
 	5,  // 11: pomerium.config.Route.policies:type_name -> pomerium.config.Policy
-	10, // 12: pomerium.config.Policy.allowed_idp_claims:type_name -> pomerium.config.Policy.AllowedIdpClaimsEntry
-	11, // 13: pomerium.config.Settings.certificates:type_name -> pomerium.config.Settings.Certificate
-	15, // 14: pomerium.config.Settings.timeout_read:type_name -> google.protobuf.Duration
-	15, // 15: pomerium.config.Settings.timeout_write:type_name -> google.protobuf.Duration
-	15, // 16: pomerium.config.Settings.timeout_idle:type_name -> google.protobuf.Duration
-	15, // 17: pomerium.config.Settings.cookie_expire:type_name -> google.protobuf.Duration
-	12, // 18: pomerium.config.Settings.request_params:type_name -> pomerium.config.Settings.RequestParamsEntry
-	13, // 19: pomerium.config.Settings.set_response_headers:type_name -> pomerium.config.Settings.SetResponseHeadersEntry
-	14, // 20: pomerium.config.Settings.jwt_claims_headers:type_name -> pomerium.config.Settings.JwtClaimsHeadersEntry
-	15, // 21: pomerium.config.Settings.default_upstream_timeout:type_name -> google.protobuf.Duration
-	11, // 22: pomerium.config.Settings.metrics_certificate:type_name -> pomerium.config.Settings.Certificate
-	15, // 23: pomerium.config.Settings.grpc_client_timeout:type_name -> google.protobuf.Duration
-	17, // 24: pomerium.config.Settings.codec_type:type_name -> envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager.CodecType
-	18, // 25: pomerium.config.Settings.audit_key:type_name -> pomerium.crypt.PublicKeyEncryptionKey
-	19, // 26: pomerium.config.Route.AllowedIdpClaimsEntry.value:type_name -> google.protobuf.ListValue
-	19, // 27: pomerium.config.Policy.AllowedIdpClaimsEntry.value:type_name -> google.protobuf.ListValue
-	28, // [28:28] is the sub-list for method output_type
-	28, // [28:28] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	11, // 12: pomerium.config.Policy.allowed_idp_claims:type_name -> pomerium.config.Policy.AllowedIdpClaimsEntry
+	12, // 13: pomerium.config.Settings.certificates:type_name -> pomerium.config.Settings.Certificate
+	20, // 14: pomerium.config.Settings.timeout_read:type_name -> google.protobuf.Duration
+	20, // 15: pomerium.config.Settings.timeout_write:type_name -> google.protobuf.Duration
+	20, // 16: pomerium.config.Settings.timeout_idle:type_name -> google.protobuf.Duration
+	20, // 17: pomerium.config.Settings.cookie_expire:type_name -> google.protobuf.Duration
+	13, // 18: pomerium.config.Settings.request_params:type_name -> pomerium.config.Settings.RequestParamsEntry
+	14, // 19: pomerium.config.Settings.set_response_headers:type_name -> pomerium.config.Settings.SetResponseHeadersEntry
+	15, // 20: pomerium.config.Settings.jwt_claims_headers:type_name -> pomerium.config.Settings.JwtClaimsHeadersEntry
+	20, // 21: pomerium.config.Settings.default_upstream_timeout:type_name -> google.protobuf.Duration
+	12, // 22: pomerium.config.Settings.metrics_certificate:type_name -> pomerium.config.Settings.Certificate
+	20, // 23: pomerium.config.Settings.grpc_client_timeout:type_name -> google.protobuf.Duration
+	22, // 24: pomerium.config.Settings.codec_type:type_name -> envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager.CodecType
+	23, // 25: pomerium.config.Settings.audit_key:type_name -> pomerium.crypt.PublicKeyEncryptionKey
+	16, // 26: pomerium.config.ConnectMessage.manifest:type_name -> pomerium.config.ConnectMessage.Manifest
+	18, // 27: pomerium.config.ConnectMessage.record_update:type_name -> pomerium.config.ConnectMessage.RecordUpdate
+	19, // 28: pomerium.config.ConnectMessage.record_delete:type_name -> pomerium.config.ConnectMessage.RecordDelete
+	24, // 29: pomerium.config.Route.AllowedIdpClaimsEntry.value:type_name -> google.protobuf.ListValue
+	24, // 30: pomerium.config.Policy.AllowedIdpClaimsEntry.value:type_name -> google.protobuf.ListValue
+	17, // 31: pomerium.config.ConnectMessage.Manifest.records:type_name -> pomerium.config.ConnectMessage.ManifestRecordVersion
+	7,  // 32: pomerium.config.ConnectService.Connect:input_type -> pomerium.config.ConnectMessage
+	7,  // 33: pomerium.config.ConnectService.Connect:output_type -> pomerium.config.ConnectMessage
+	33, // [33:34] is the sub-list for method output_type
+	32, // [32:33] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_config_proto_init() }
@@ -2623,8 +3053,68 @@ func file_config_proto_init() {
 				return nil
 			}
 		}
-		file_config_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_config_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_config_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Settings_Certificate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_config_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectMessage_Manifest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_config_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectMessage_ManifestRecordVersion); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_config_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectMessage_RecordUpdate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_config_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectMessage_RecordDelete); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2642,15 +3132,20 @@ func file_config_proto_init() {
 	file_config_proto_msgTypes[2].OneofWrappers = []interface{}{}
 	file_config_proto_msgTypes[3].OneofWrappers = []interface{}{}
 	file_config_proto_msgTypes[5].OneofWrappers = []interface{}{}
+	file_config_proto_msgTypes[6].OneofWrappers = []interface{}{
+		(*ConnectMessage_Manifest_)(nil),
+		(*ConnectMessage_RecordUpdate_)(nil),
+		(*ConnectMessage_RecordDelete_)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_config_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   19,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_config_proto_goTypes,
 		DependencyIndexes: file_config_proto_depIdxs,
@@ -2661,4 +3156,116 @@ func file_config_proto_init() {
 	file_config_proto_rawDesc = nil
 	file_config_proto_goTypes = nil
 	file_config_proto_depIdxs = nil
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// ConnectServiceClient is the client API for ConnectService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ConnectServiceClient interface {
+	Connect(ctx context.Context, opts ...grpc.CallOption) (ConnectService_ConnectClient, error)
+}
+
+type connectServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConnectServiceClient(cc grpc.ClientConnInterface) ConnectServiceClient {
+	return &connectServiceClient{cc}
+}
+
+func (c *connectServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (ConnectService_ConnectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ConnectService_serviceDesc.Streams[0], "/pomerium.config.ConnectService/Connect", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &connectServiceConnectClient{stream}
+	return x, nil
+}
+
+type ConnectService_ConnectClient interface {
+	Send(*ConnectMessage) error
+	Recv() (*ConnectMessage, error)
+	grpc.ClientStream
+}
+
+type connectServiceConnectClient struct {
+	grpc.ClientStream
+}
+
+func (x *connectServiceConnectClient) Send(m *ConnectMessage) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *connectServiceConnectClient) Recv() (*ConnectMessage, error) {
+	m := new(ConnectMessage)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ConnectServiceServer is the server API for ConnectService service.
+type ConnectServiceServer interface {
+	Connect(ConnectService_ConnectServer) error
+}
+
+// UnimplementedConnectServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedConnectServiceServer struct {
+}
+
+func (*UnimplementedConnectServiceServer) Connect(ConnectService_ConnectServer) error {
+	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+}
+
+func RegisterConnectServiceServer(s *grpc.Server, srv ConnectServiceServer) {
+	s.RegisterService(&_ConnectService_serviceDesc, srv)
+}
+
+func _ConnectService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ConnectServiceServer).Connect(&connectServiceConnectServer{stream})
+}
+
+type ConnectService_ConnectServer interface {
+	Send(*ConnectMessage) error
+	Recv() (*ConnectMessage, error)
+	grpc.ServerStream
+}
+
+type connectServiceConnectServer struct {
+	grpc.ServerStream
+}
+
+func (x *connectServiceConnectServer) Send(m *ConnectMessage) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *connectServiceConnectServer) Recv() (*ConnectMessage, error) {
+	m := new(ConnectMessage)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+var _ConnectService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "pomerium.config.ConnectService",
+	HandlerType: (*ConnectServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Connect",
+			Handler:       _ConnectService_Connect_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "config.proto",
 }
