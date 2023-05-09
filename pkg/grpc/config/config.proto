@@ -249,13 +249,15 @@ message ConnectMessage {
   message RecordUpdate {
     string record_type = 1;
     string record_id = 2;
-    uint64 packet_count = 3;
-    uint64 packet_number = 4;
-    bytes packet_data = 5;
+    optional uint64 record_version = 3;
+    uint64 packet_count = 4;
+    uint64 packet_number = 5;
+    bytes packet_data = 6;
   }
   message RecordDelete {
     string record_type = 1;
     string record_id = 2;
+    optional uint64 record_version = 3;
   }
 
   oneof message {
