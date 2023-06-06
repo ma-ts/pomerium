@@ -533,42 +533,43 @@ func (b *Builder) buildDownstreamTLSContext(ctx context.Context,
 	}
 
 	envoyCert := b.envoyTLSCertificateFromGoTLSCertificate(ctx, cert)
-	return &envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
+	dtc := &envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
 		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
-			TlsParams:             tlsParams,
-			TlsCertificates:       []*envoy_extensions_transport_sockets_tls_v3.TlsCertificate{envoyCert},
-			AlpnProtocols:         alpnProtocols,
-			ValidationContextType: b.buildDownstreamValidationContext(ctx, cfg, serverName),
+			TlsParams:       tlsParams,
+			TlsCertificates: []*envoy_extensions_transport_sockets_tls_v3.TlsCertificate{envoyCert},
+			AlpnProtocols:   alpnProtocols,
 		},
 	}
+	if clientCA := clientCAForServerName(cfg, serverName); len(clientCA) > 0 {
+		dtc.CommonTlsContext.ValidationContextType = b.buildDownstreamValidationContext(ctx, cfg, clientCA)
+		dtc.RequireClientCertificate = wrapperspb.Bool(true)
+	}
+	return dtc
 }
 
-func (b *Builder) buildDownstreamValidationContext(ctx context.Context,
-	cfg *config.Config,
-	serverName string,
-) *envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext {
-	needsClientCert := false
-
-	if ca, _ := cfg.Options.GetClientCA(); len(ca) > 0 {
-		needsClientCert = true
-	}
-	if !needsClientCert {
-		for _, p := range getPoliciesForServerName(cfg.Options, serverName) {
-			if p.TLSDownstreamClientCA != "" {
-				needsClientCert = true
-				break
-			}
+// XXX: decide on the behavior of incompatible CA settings (if multiple
+// policies for the same server name have different CAs set)
+func clientCAForServerName(cfg *config.Config, serverName string) []byte {
+	for _, p := range getPoliciesForServerName(cfg.Options, serverName) {
+		if p.TLSDownstreamClientCA == "" {
+			continue
+		}
+		if ca, err := base64.StdEncoding.DecodeString(p.TLSDownstreamClientCA); err == nil {
+			return ca
 		}
 	}
+	ca, _ := cfg.Options.GetClientCA()
+	return ca
+}
 
-	if !needsClientCert {
-		return nil
-	}
-
-	// trusted_ca is left blank because we verify the client certificate in the authorize service
+func (b *Builder) buildDownstreamValidationContext(
+	ctx context.Context,
+	cfg *config.Config,
+	clientCA []byte,
+) *envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext {
 	vc := &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext{
 		ValidationContext: &envoy_extensions_transport_sockets_tls_v3.CertificateValidationContext{
-			TrustChainVerification: envoy_extensions_transport_sockets_tls_v3.CertificateValidationContext_ACCEPT_UNTRUSTED,
+			TrustedCa: b.filemgr.BytesDataSource("client-ca.pem", clientCA),
 		},
 	}
 
